@@ -1,0 +1,177 @@
+public class CreateAccount {
+    public String name { get; set; }
+    public String phoneNumber { get; set; }
+    public String selectedname { get; set; }
+    public String websiteURL { get; set; }
+    public List<SelectOption> lstnamesel { get; set; }
+
+    public CreateAccount(ApexPages.StandardController controller) {
+        lstnamesel = new List<SelectOption>();
+        lstnamesel.add(new SelectOption('', '- None -'));
+        lstnamesel.add(new SelectOption('IT', 'IT'));
+        lstnamesel.add(new SelectOption('MECH', 'MECH'));
+        lstnamesel.add(new SelectOption('CHEM', 'CHEM'));
+        lstnamesel.add(new SelectOption('PHARMA', 'PHARMA'));
+    }
+
+    public PageReference createAccount() {
+        System.debug('Test createAccount method');
+
+        if (!String.isEmpty(name)) {
+            Account accountRecord = new Account(
+                Name = name,
+                Phone = phoneNumber,
+                Industry = selectedname,
+                Website = websiteURL
+            );
+            insert accountRecord;
+
+            PageReference pg = new PageReference('/' + accountRecord.Id);
+            pg.setRedirect(true);
+            return pg;
+        } else {
+            ApexPages.addMessage(new ApexPages.Message(
+                ApexPages.Severity.CONFIRM,
+                'Please enter Account Name'
+            ));
+        }
+        return null;
+    }
+
+    public PageReference cancelAccount() {
+        PageReference pg = new PageReference('/' + Schema.SObjectType.Account.getKeyPrefix() + '/o');
+        return pg;
+    }
+}
+
+//Account acc = new Account();
+//acc.Name = 'Test Company';
+//acc.Phone = '1234567890';
+//acc.Industry = 'IT';
+//acc.Website = 'https://testcompany.com';
+
+//insert acc;
+
+//System.debug('Created Account Id: ' + acc.Id);
+
+
+<apex:page standardController="Account" extensions="CreateAccount">
+    <apex:form id="apexForm">
+        <apex:pageBlock title="Create Account:" id="pageBlockId">
+            
+            <apex:pageMessages id="showmsg" />
+
+            <apex:pageBlockSection columns="2">
+                <apex:inputText value="{!name}" label="Account Name" required="true" />
+                <apex:inputText value="{!phoneNumber}" label="Phone" />
+                
+                <apex:selectList size="1" value="{!selectedname}" label="Industry">
+                    <apex:selectOptions value="{!lstnamesel}" />
+                </apex:selectList>
+
+                <apex:inputText value="{!websiteURL}" label="Website" />
+            </apex:pageBlockSection>
+
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!createAccount}" value="Save" />
+                <apex:commandButton action="{!cancelAccount}" value="Cancel" />
+            </apex:pageBlockButtons>
+
+        </apex:pageBlock>
+
+        <!-- Action Functions (if needed by JavaScript) -->
+        <apex:actionFunction name="createFunction" action="{!createAccount}" />
+        <apex:actionFunction name="cancelFunction" action="{!cancelAccount}" />
+
+    </apex:form>
+</apex:page>
+
+-----------------------------------------------------------------------------------------
+
+
+public class Calculator {
+ 	public Double xvalue { get; set; }
+    public Double yvalue { get; set; }
+    public Double result { get; set; }
+    public String operation { get; set; }
+    public String message { get; set; }
+
+    public PageReference add() {
+        result = xvalue + yvalue;
+        operation = 'Addition';
+        message = null;
+        return null;
+    }
+
+    public PageReference sub() {
+        result = xvalue - yvalue;
+        operation = 'Subtraction';
+        message = null;
+        return null;
+    }
+
+    public PageReference mul() {
+        result = xvalue * yvalue;
+        operation = 'Multiplication';
+        message = null;
+        return null;
+    }
+
+    public PageReference div() {
+        if (yvalue != 0) {
+            result = xvalue / yvalue;
+            message = null;
+        } else {
+            result = null;
+            message = 'Cannot divide by zero.';
+        }
+        operation = 'Division';
+        return null;
+    }
+
+    public PageReference square() {
+        result = xvalue * xvalue;
+        operation = 'Square';
+        message = null;
+        return null;
+    }
+}
+
+//Calculator c = new Calculator();
+//c.xvalue = 20;
+//c.yvalue = 5;
+//c.add(); System.debug(c.operation + ': ' + c.result);
+//c.sub(); System.debug(c.operation + ': ' + c.result);
+//c.mul(); System.debug(c.operation + ': ' + c.result);
+//c.div(); System.debug(c.operation + ': ' + c.result);
+//c.square(); System.debug(c.operation + ': ' + c.result);
+
+
+<apex:page controller="Calculator">
+    <apex:form >
+        <apex:pageBlock title="Simple Calculator">
+
+            <apex:pageBlockSection title="Enter Values" columns="2">
+                <apex:inputText label="X value" value="{!xvalue}" required="true"/>
+                <apex:inputText label="Y Value" value="{!yvalue}" required="true"/>
+            </apex:pageBlockSection>
+
+            <apex:pageBlockSection title="Select Operation" columns="5">
+                <apex:commandButton value="Add" action="{!add}" rerender="resultPanel"/>
+                <apex:commandButton value="Subtract" action="{!sub}" rerender="resultPanel"/>
+                <apex:commandButton value="Multiply" action="{!mul}" rerender="resultPanel"/>
+                <apex:commandButton value="Divide" action="{!div}" rerender="resultPanel"/>
+                <apex:commandButton value="Square X" action="{!square}" rerender="resultPanel"/>
+            </apex:pageBlockSection>
+
+            <apex:outputPanel id="resultPanel">
+                <apex:pageBlockSection title="Result" rendered="{!NOT(ISBLANK(operation))}">
+                    <apex:outputText value="Operation: {!operation}" /><br/>
+                    <apex:outputText value="Result: {!result}" /><br/>
+                    <apex:outputText value="{!message}" style="color:red;" rendered="{!NOT(ISBLANK(message))}"/>
+                </apex:pageBlockSection>
+            </apex:outputPanel>
+
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>
