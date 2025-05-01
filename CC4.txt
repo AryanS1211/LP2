@@ -1,0 +1,302 @@
+public class CreateAccount {
+    public String name { get; set; }
+    public String phoneNumber { get; set; }
+    public String selectedname { get; set; }
+    public String websiteURL { get; set; }
+    public List<SelectOption> lstnamesel { get; set; }
+
+    public CreateAccount(ApexPages.StandardController controller) {
+        lstnamesel = new List<SelectOption>();
+        lstnamesel.add(new SelectOption('', '- None -'));
+        lstnamesel.add(new SelectOption('IT', 'IT'));
+        lstnamesel.add(new SelectOption('MECH', 'MECH'));
+        lstnamesel.add(new SelectOption('CHEM', 'CHEM'));
+        lstnamesel.add(new SelectOption('PHARMA', 'PHARMA'));
+    }
+
+    public PageReference createAccount() {
+        System.debug('Test createAccount method');
+
+        if (!String.isEmpty(name)) {
+            Account accountRecord = new Account(
+                Name = name,
+                Phone = phoneNumber,
+                Industry = selectedname,
+                Website = websiteURL
+            );
+            insert accountRecord;
+
+            PageReference pg = new PageReference('/' + accountRecord.Id);
+            pg.setRedirect(true);
+            return pg;
+        } else {
+            ApexPages.addMessage(new ApexPages.Message(
+                ApexPages.Severity.CONFIRM,
+                'Please enter Account Name'
+            ));
+        }
+        return null;
+    }
+
+    public PageReference cancelAccount() {
+        PageReference pg = new PageReference('/' + Schema.SObjectType.Account.getKeyPrefix() + '/o');
+        return pg;
+    }
+}
+
+//Account acc = new Account();
+//acc.Name = 'Test Company';
+//acc.Phone = '1234567890';
+//acc.Industry = 'IT';
+//acc.Website = 'https://testcompany.com';
+
+//insert acc;
+
+//System.debug('Created Account Id: ' + acc.Id);
+
+
+<apex:page standardController="Account" extensions="CreateAccount">
+    <apex:form id="apexForm">
+        <apex:pageBlock title="Create Account:" id="pageBlockId">
+            
+            <apex:pageMessages id="showmsg" />
+
+            <apex:pageBlockSection columns="2">
+                <apex:inputText value="{!name}" label="Account Name" required="true" />
+                <apex:inputText value="{!phoneNumber}" label="Phone" />
+                
+                <apex:selectList size="1" value="{!selectedname}" label="Industry">
+                    <apex:selectOptions value="{!lstnamesel}" />
+                </apex:selectList>
+
+                <apex:inputText value="{!websiteURL}" label="Website" />
+            </apex:pageBlockSection>
+
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!createAccount}" value="Save" />
+                <apex:commandButton action="{!cancelAccount}" value="Cancel" />
+            </apex:pageBlockButtons>
+
+        </apex:pageBlock>
+
+        <!-- Action Functions (if needed by JavaScript) -->
+        <apex:actionFunction name="createFunction" action="{!createAccount}" />
+        <apex:actionFunction name="cancelFunction" action="{!cancelAccount}" />
+
+    </apex:form>
+</apex:page>
+
+-----------------------------------------------------------------------------------------
+
+
+public class Calculator {
+    public String display { get; set; }
+
+    private String currentInput = '';
+    private String operator = '';
+    private Decimal firstOperand;
+    private Boolean operatorSet = false;
+
+    // Constructor
+    public Calculator() {
+        display = '0';
+    }
+
+    // Handles digit button press
+    public PageReference pressDigit() {
+        String digit = ApexPages.currentPage().getParameters().get('digit');
+        if (digit != null) {
+            currentInput += digit;
+            display = currentInput;
+        }
+        return null;
+    }
+
+    // Sets the operator (+, -, *, /)
+    public PageReference setOperator() {
+        String op = ApexPages.currentPage().getParameters().get('operator');
+        if (currentInput != '') {
+            try {
+                firstOperand = Decimal.valueOf(currentInput);
+            } catch (Exception e) {
+                display = 'Error';
+                return null;
+            }
+            operator = op;
+            operatorSet = true;
+            currentInput = '';
+            display = operator;
+        }
+        return null;
+    }
+
+    // Performs calculation based on selected operator
+    public PageReference calculate() {
+        if (operatorSet && currentInput != '') {
+            try {
+                Decimal secondOperand = Decimal.valueOf(currentInput);
+                Decimal result;
+
+                if (operator == '+') {
+                    result = firstOperand + secondOperand;
+                } else if (operator == '-') {
+                    result = firstOperand - secondOperand;
+                } else if (operator == '*') {
+                    result = firstOperand * secondOperand;
+                } else if (operator == '/') {
+                    result = (secondOperand == 0) ? 0 : firstOperand / secondOperand;
+                } else {
+                    result = 0;
+                }
+
+                display = String.valueOf(result);
+                currentInput = display;
+                operatorSet = false;
+            } catch (Exception e) {
+                display = 'Error';
+            }
+        }
+        return null;
+    }
+
+    // Clears all inputs and resets the calculator
+    public PageReference clear() {
+        currentInput = '';
+        operator = '';
+        firstOperand = 0;
+        operatorSet = false;
+        display = '0';
+        return null;
+    }
+}
+
+
+<apex:page controller="Calculator" showHeader="false" sidebar="false">
+    <apex:form styleClass="calc-container"> 
+        <style> 
+            .calc-container { 
+                max-width: 400px; 
+                margin: 40px auto; 
+                background: #1e1e1e;  
+                border-radius: 20px;  
+                padding: 20px;  
+                font-family: 'Segoe UI', sans-serif; 
+                color: white; 
+                box-shadow: 0 0 12px rgba(0, 0, 0, 0.5); 
+            } 
+
+            .display { 
+                text-align: right; 
+                font-size: 2em; 
+                margin-bottom: 10px; 
+                padding: 15px; 
+                background: #f1f1f1; 
+                color: #2c3e50; 
+                border-radius: 12px; 
+            } 
+
+            .row { 
+                display: flex; 
+                justify-content: space-between; 
+                margin: 6px 0; 
+            } 
+
+            .btn { 
+                flex: 1; 
+                margin: 4px; 
+                padding: 15px 0; 
+                font-size: 1.2em; 
+                border: none; 
+                border-radius: 6px; 
+                background: #eee; 
+                color: #333; 
+                cursor: pointer; 
+                box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2); 
+            } 
+
+            .btn.operator { 
+                background: #333; 
+                color: white; 
+            } 
+
+            .btn.equal { 
+                background: #2980b9; 
+                color: white; 
+            } 
+
+            .btn.clear { 
+                background: #c0392b; 
+                color: white; 
+            } 
+
+            .btn:hover { 
+                opacity: 0.9; 
+            } 
+        </style> 
+
+        <apex:outputPanel id="displayPanel"> 
+            <div class="display">= {!display}</div> 
+        </apex:outputPanel> 
+
+        <!-- Operator Row --> 
+        <div class="row"> 
+            <apex:commandButton value="+" action="{!setOperator}" rerender="displayPanel" styleClass="btn operator"> 
+                <apex:param name="operator" value="+" assignTo="{!currentOperator}" />
+            </apex:commandButton> 
+            <apex:commandButton value="-" action="{!setOperator}" rerender="displayPanel" styleClass="btn operator"> 
+                <apex:param name="operator" value="-" assignTo="{!currentOperator}" />
+            </apex:commandButton> 
+            <apex:commandButton value="×" action="{!setOperator}" rerender="displayPanel" styleClass="btn operator"> 
+                <apex:param name="operator" value="*" assignTo="{!currentOperator}" />
+            </apex:commandButton> 
+            <apex:commandButton value="÷" action="{!setOperator}" rerender="displayPanel" styleClass="btn operator"> 
+                <apex:param name="operator" value="/" assignTo="{!currentOperator}" />
+            </apex:commandButton> 
+        </div> 
+
+        <!-- Number Buttons -->
+        <div class="row"> 
+            <apex:commandButton value="7" action="{!pressDigit}" rerender="displayPanel" styleClass="btn"> 
+                <apex:param name="digit" value="7" assignTo="{!inputDigit}" />
+            </apex:commandButton> 
+            <apex:commandButton value="8" action="{!pressDigit}" rerender="displayPanel" styleClass="btn"> 
+                <apex:param name="digit" value="8" assignTo="{!inputDigit}" />
+            </apex:commandButton> 
+            <apex:commandButton value="9" action="{!pressDigit}" rerender="displayPanel" styleClass="btn"> 
+                <apex:param name="digit" value="9" assignTo="{!inputDigit}" />
+            </apex:commandButton> 
+        </div> 
+
+        <div class="row"> 
+            <apex:commandButton value="4" action="{!pressDigit}" rerender="displayPanel" styleClass="btn"> 
+                <apex:param name="digit" value="4" assignTo="{!inputDigit}" />
+            </apex:commandButton> 
+            <apex:commandButton value="5" action="{!pressDigit}" rerender="displayPanel" styleClass="btn"> 
+                <apex:param name="digit" value="5" assignTo="{!inputDigit}" />
+            </apex:commandButton> 
+            <apex:commandButton value="6" action="{!pressDigit}" rerender="displayPanel" styleClass="btn"> 
+                <apex:param name="digit" value="6" assignTo="{!inputDigit}" />
+            </apex:commandButton> 
+        </div> 
+
+        <div class="row"> 
+            <apex:commandButton value="3" action="{!pressDigit}" rerender="displayPanel" styleClass="btn"> 
+                <apex:param name="digit" value="3" assignTo="{!inputDigit}" />
+            </apex:commandButton> 
+            <apex:commandButton value="2" action="{!pressDigit}" rerender="displayPanel" styleClass="btn"> 
+                <apex:param name="digit" value="2" assignTo="{!inputDigit}" />
+            </apex:commandButton> 
+            <apex:commandButton value="1" action="{!pressDigit}" rerender="displayPanel" styleClass="btn"> 
+                <apex:param name="digit" value="1" assignTo="{!inputDigit}" />
+            </apex:commandButton> 
+        </div> 
+
+        <div class="row"> 
+            <apex:commandButton value="0" action="{!pressDigit}" rerender="displayPanel" styleClass="btn"> 
+                <apex:param name="digit" value="0" assignTo="{!inputDigit}" />
+            </apex:commandButton> 
+            <apex:commandButton value="=" action="{!calculate}" rerender="displayPanel" styleClass="btn equal" /> 
+            <apex:commandButton value="⌫" action="{!clear}" rerender="displayPanel" styleClass="btn clear" /> 
+        </div> 
+    </apex:form>  
+</apex:page>
