@@ -1,0 +1,68 @@
+import heapq
+
+# Dijkstra's Algorithm Implementation
+def dijkstra(graph, start):
+    # Initialize distances dictionary
+    distances = {node: float('inf') for node in graph}
+    distances[start] = 0  # Distance to start node is 0
+    
+    # Priority Queue (min-heap)
+    priority_queue = [(0, start)]  # (distance, node)
+    
+    # Dictionary to store the shortest path
+    shortest_path = {node: None for node in graph}
+    
+    while priority_queue:
+        # Get the node with the smallest distance
+        current_distance, current_node = heapq.heappop(priority_queue)
+        
+        # If the current distance is greater than the already found shortest distance, skip it
+        if current_distance > distances[current_node]:
+            continue
+        
+        # Explore neighbors
+        for neighbor, weight in graph[current_node].items():
+            distance = current_distance + weight
+            
+            # If a shorter path to the neighbor is found
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                shortest_path[neighbor] = current_node
+                heapq.heappush(priority_queue, (distance, neighbor))
+    
+    return distances, shortest_path
+
+# Function to reconstruct the shortest path from start to goal
+def get_shortest_path(shortest_path, start, goal):
+    path = []
+    current_node = goal
+    while current_node is not None:
+        path.append(current_node)
+        current_node = shortest_path[current_node]
+    
+    return path[::-1]  # Reverse the path to start -> goal
+
+# Example Graph (Adjacency List)
+graph = {
+    'A': {'B': 4, 'C': 5},
+    'B': {'A': 4, 'C': 11, 'D': 9, 'E':7},
+    'C': {'A': 2, 'B': 11, 'E': 3},
+    'D': {'B': 9, 'E': 13, 'F': 2},
+    'E': {'C': 3, 'D': 13, 'F': 6},
+    'F': {'D': 13, 'E': 6}
+    
+}
+
+# Running Dijkstra's Algorithm
+start_node = 'A'
+distances, shortest_path = dijkstra(graph, start_node)
+
+# Display the results
+print("Shortest distances from the start node:", start_node)
+for node, distance in distances.items():
+    print(f"Distance from {start_node} to {node}: {distance}")
+
+# Get the shortest path from 'A' to 'D'
+goal_node = 'F'
+path = get_shortest_path(shortest_path, start_node, goal_node)
+print(f"\nShortest path from {start_node} to {goal_node}: {path}")

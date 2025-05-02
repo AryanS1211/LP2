@@ -1,0 +1,53 @@
+def a_star_search(graph, heuristics, start, goal):
+    # open_list items are tuples: (f_score, g_score, node, path_so_far)
+    open_list = [(heuristics[start], 0, start, [start])]
+    visited = set()
+
+    while open_list:
+        # Find and remove the entry with the smallest f_score
+        best_idx = 0
+        for i in range(1, len(open_list)):
+            if open_list[i][0] < open_list[best_idx][0]:
+                best_idx = i
+        f, g, current, path = open_list.pop(best_idx)
+
+        # Goal test
+        if current == goal:
+            print(f"Path found: {' -> '.join(path)}")
+            print(f"Total cost: {g}")
+            return
+
+        if current in visited:
+            continue
+        visited.add(current)
+
+        # Expand neighbors
+        for neighbor, cost in graph[current]:
+            if neighbor in visited:
+                continue
+            g_new = g + cost
+            f_new = g_new + heuristics.get(neighbor, float('inf'))
+            open_list.append((f_new, g_new, neighbor, path + [neighbor]))
+
+    print("No path found.")
+
+
+# Example usage:
+
+graph = {
+    'a': [('b', 4), ('c', 3)],
+    'b': [('a', 4), ('f', 5), ('e', 12)],
+    'c': [('a', 3), ('d', 7), ('e', 10)],
+    'd': [('c', 7), ('e', 2)],
+    'e': [('b', 12), ('c', 10), ('d', 2), ('f', 4), ('z', 5)],
+    'f': [('b', 5), ('e', 4), ('z', 16)],
+    'z': [('e', 5), ('f', 16)]
+}
+
+heuristics = {
+    'a': 14, 'b': 12, 'c': 11, 'd': 6,
+    'e': 4, 'f': 11, 'z': 0
+}
+
+# Run A* from 'a' to 'z'
+a_star_search(graph, heuristics, 'a', 'z')

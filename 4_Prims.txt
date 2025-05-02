@@ -1,0 +1,48 @@
+def prim_mst(graph, start=1):
+    visited = set()
+    mst = []
+    total_cost = 0
+
+    # List of all edges (weight, from_node, to_node) from visited nodes
+    edges = [(0, start, start)]
+
+    while edges and len(visited) < len(graph):
+        # Find edge with minimum weight manually
+        min_index = 0
+        for i in range(1, len(edges)):
+            if edges[i][0] < edges[min_index][0]:
+                min_index = i
+
+        weight, u, v = edges.pop(min_index)
+
+        if v not in visited:
+            visited.add(v)
+            mst.append((u, v, weight))
+            total_cost += weight
+
+            for neighbor, edge_weight in graph[v]:
+                if neighbor not in visited:
+                    edges.append((edge_weight, v, neighbor))
+
+    return mst[1:], total_cost  # Skip the dummy starting edge
+
+
+# Example graph
+graph = {
+    1: [(2, 2), (4, 1), (5, 4)],
+    2: [(1, 2), (3, 3), (4, 3), (6, 7)],
+    3: [(2, 3), (4, 5), (6, 8)],
+    4: [(1, 1), (2, 3), (3, 5), (5, 9)],
+    5: [(1, 4), (4, 9)],
+    6: [(2, 7), (3, 8)],
+}
+
+# Run Prim's algorithm
+mst_edges, total_cost = prim_mst(graph, start=1)
+
+# Print the MST and its total cost
+print("Minimum Spanning Tree Edges:")
+for u, v, weight in mst_edges:
+    print(f"{u} -- {v}  (weight: {weight})")
+
+print(f"\nTotal cost of MST: {total_cost}")
