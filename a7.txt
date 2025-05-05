@@ -1,0 +1,111 @@
+import nltk
+nltk.download('punkt', download_dir='./nltk_data')
+
+
+#Give Input as ant test 
+text = "It is a truth universally acknowledged, that a single man in possession of a good fortune,  must be in want of a wife." 
+text = text.lower() 
+print(text)
+
+
+text = "It is a truth universally acknowledged, that a single man in possession of a good fortune,  must be in want of a wife." 
+text = text.lower() 
+print(text)
+
+
+import string 
+print(string.punctuation)
+
+
+text_p = "".join([char for char in text if char not in string.punctuation]); print(text_p)
+
+
+
+from nltk import word_tokenize, sent_tokenize
+# Tokenize
+words = word_tokenize(text_p) 
+words1 = sent_tokenize(text_p) 
+print(words) 
+print(words1)
+
+
+nltk.download('stopwords')
+
+
+nltk.download('stopwords') 
+from nltk.corpus import stopwords 
+stop_words = stopwords.words('english') 
+print(stop_words)
+
+
+
+filtered_words = [word for word in words if word not in stop_words] 
+print(filtered_words)
+
+
+from nltk.stem.porter import PorterStemmer 
+porter = PorterStemmer() 
+stemmed = [porter.stem(word) for word in filtered_words] 
+print(stemmed)
+
+
+
+import nltk 
+nltk.download('averaged_perceptron_tagger') 
+from nltk import pos_tag 
+pos = pos_tag(filtered_words) 
+print(pos) 
+
+
+# 5. Calculate TF-IDF
+from sklearn.feature_extraction.text import TfidfVectorizer
+corpus = [text]
+tfidf_vectorizer = TfidfVectorizer(stop_words='english')
+tfidf_matrix = tfidf_vectorizer.fit_transform(corpus)
+
+
+
+
+# Get feature names (terms)
+terms = tfidf_vectorizer.get_feature_names_out()
+print("TF-IDF Terms:", terms)
+
+
+
+
+# Display TF-IDF values for the document
+tfidf_values = tfidf_matrix.toarray()
+print("TF-IDF Values:", tfidf_values)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 

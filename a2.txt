@@ -1,0 +1,89 @@
+# Importing libraries 
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Read the csv file into a pandas dataframe
+df = pd.read_csv("acdemic_data.csv")
+
+# Prints out the first few rows 
+print(df.head())
+
+missing_value_formats = ["n.a.","?","NA","n/a", "na", "--"]
+df = pd.read_csv("acdemic_data.csv", na_values = missing_value_formats)
+
+#print gender again 
+print(df['Gender'].head(10))
+
+# Null values are marked True
+print(df['Gender'].isnull().head(10))
+
+# NaN values are marked False  
+print(df['Gender'].notnull().head(10))
+
+# notnull will return False for all NaN values
+null_filter = df['Gender'].notnull()
+
+# prints only those rows where null_filter is True 
+print(df[null_filter]) 
+
+print(df.isnull().values.any())
+
+print(df.isnull().sum())
+
+# How to remove rows with missing values
+# drop all rows with Null values 
+df.dropna(axis=0,inplace=True)
+
+# drop all rows with atleast one null
+new_df = df.dropna(axis = 0, how ='any')
+
+# drop all rows with all null
+new_df = df.dropna(axis = 0, how ='all')
+
+# drop all columns with atleast one Null
+new_df = df.dropna(axis = 1, how ='any')
+
+# drop all columns with all Null 
+new_df = df.dropna(axis = 1, how ='all')
+
+#Replacing Null with a single constant value 
+df['SPOS'].fillna(0, inplace=True)
+
+# To check changes call 
+print(df['SPOS'].head(10))
+
+
+# We use method = 'bfill’ for taking values from the next row. 
+df['SPOS'].fillna(method='bfill', inplace=True) 
+print(df['SPOS'].head(10))
+
+
+#Replacing Null with the value from the previous row or the next row 
+#method = 'pad’ for taking values from the previous row 
+df['DSBDA'].fillna(method='pad', inplace=True)
+print(df['DSBDA'].head(10))
+
+df['WT'].fillna(method='pad', inplace=True)
+print(df['WT'].head(10))
+
+
+df['DA'].fillna(method='pad', inplace=True)
+print(df['DA'].head(10))
+
+
+df.head()
+
+
+df.shape
+
+plt.boxplot(x=df['SPOS'])
+
+
+plt.boxplot(x=df['DSBDA'])
+
+plt.boxplot(x=df['WT'])
+
+
+

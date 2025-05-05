@@ -1,0 +1,104 @@
+#Step 1: Importing the Libraries
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+
+#Step 2: Importing the dataset
+dataset = pd.read_csv("iris.csv")
+
+
+#Step 3:Describe dataset,See dimention and Exlpore dataset
+dataset.describe()
+
+
+dataset.head()
+
+dataset.shape
+
+
+X = dataset.iloc[:,:4].values
+X
+
+
+y = dataset['Species'].values
+y
+
+
+#Step 4: Splitting the dataset into the Training set and Test set
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2)
+
+
+#Step 5: Feature Scaling
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+X_train = sc.fit_transform(X_train)
+X_test = sc.transform(X_test)
+X_train
+
+
+X_test
+
+
+#Step 6: Training the Naive Bayes Classification model on the Training Set
+from sklearn.naive_bayes import GaussianNB
+classifier = GaussianNB()
+classifier.fit(X_train, y_train)
+
+
+y_pred = classifier.predict(X_test) 
+y_pred
+
+
+#Step 7: Confusion Matrix and Accuracy
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_test, y_pred)
+cm
+
+
+from sklearn.metrics import accuracy_score 
+print ("Accuracy : ", accuracy_score(y_test, y_pred))
+Accuracy :  1.0
+
+
+
+#Step 8: Comparing the Real Values with Predicted Values
+df = pd.DataFrame({'Real Values':y_test, 'Predicted Values':y_pred})
+df
+
+
+from sklearn.metrics import accuracy_score, precision_score, recall_score
+# Calculate metrics
+accuracy = accuracy_score(y_test, y_pred)
+error_rate = 1 - accuracy
+precision = precision_score(y_test, y_pred, average='weighted')
+recall = recall_score(y_test, y_pred, average='weighted')
+
+# Print metrics
+print("Confusion Matrix:\n", cm)
+print(f"Accuracy: {accuracy:.2f}")
+print(f"Error Rate: {error_rate:.2f}")
+print(f"Precision: {precision:.2f}")
+print(f"Recall: {recall:.2f}")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
